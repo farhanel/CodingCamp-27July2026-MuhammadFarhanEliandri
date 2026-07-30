@@ -1,0 +1,957 @@
+/* css/style.css — To-Do List Dashboard styles */
+
+/* ============================================================
+   1. CSS RESET / NORMALIZE BASICS
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================
+   2. COLOUR TOKENS (Requirements 6.1, 6.2)
+   ============================================================ */
+
+:root {
+  /* Colour tokens */
+  --bg:          #f8f9fa;
+  --surface:     #ffffff;
+  --text:        #212529;
+  --text-muted:  #6c757d;
+  --accent:      #4361ee;
+  --danger:      #e63946;
+  --border:      #dee2e6;
+
+  /* Spacing tokens */
+  --space-xs:    0.25rem;   /* 4px  */
+  --space-sm:    0.5rem;    /* 8px  */
+  --space-md:    1rem;      /* 16px */
+  --space-lg:    1.5rem;    /* 24px */
+  --space-xl:    2rem;      /* 32px */
+
+  /* Border radius */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+
+  /* Transitions */
+  --transition:  0.2s ease;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:   0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Dark theme overrides (Requirements 6.2, NFR-3) */
+[data-theme="dark"] {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --text:        #e9ecef;
+  --text-muted:  #adb5bd;
+  --accent:      #6a8bff;
+  --danger:      #ff6b6b;
+  --border:      #333333;
+}
+
+/* ============================================================
+   3. BASE / TYPOGRAPHY (NFR-3)
+   ============================================================ */
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  background-color: var(--bg);
+  min-height: 100vh;
+  transition: background-color var(--transition), color var(--transition);
+}
+
+h1 {
+  font-size: 1.75rem;   /* 28px */
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--text);
+}
+
+h2 {
+  font-size: 1.375rem;  /* 22px */
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--text);
+}
+
+h3 {
+  font-size: 1.125rem;  /* 18px */
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--text);
+}
+
+p {
+  line-height: 1.6;
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+
+a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition), background-color var(--transition);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--text);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  transition: border-color var(--transition), background-color var(--transition);
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   4. SETTINGS BAR (horizontal flex, space-between)
+   ============================================================ */
+
+#settings-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+/* ============================================================
+   5. MAIN LAYOUT — two-column desktop, single-column mobile
+      Left column:  greeting-panel + timer-panel
+      Right column: todo-panel + links-panel
+      (Requirements 6.1, NFR-3)
+   ============================================================ */
+
+main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+/* Left column — greeting + timer */
+#greeting-panel,
+#timer-panel {
+  flex: 1 1 280px;   /* grow/shrink, base 280px */
+}
+
+/* Right column — todo + links */
+#todo-panel,
+#links-panel {
+  flex: 2 1 400px;   /* wider right column */
+}
+
+/* Group left panels into a single flex column */
+#greeting-panel,
+#timer-panel {
+  min-width: 260px;
+}
+
+/* Single-column fallback for mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  main {
+    flex-direction: column;
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
+
+  #greeting-panel,
+  #timer-panel,
+  #todo-panel,
+  #links-panel {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
+
+/* ============================================================
+   6. SECTION CARD BASE STYLES
+   ============================================================ */
+
+#greeting-panel,
+#timer-panel,
+#todo-panel,
+#links-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+/* ============================================================
+   7. UTILITY CLASSES
+   ============================================================ */
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.875rem;
+  margin-top: var(--space-xs);
+  display: block;
+}
+
+/* ============================================================
+   8. BUTTON VARIANTS (Requirements 4.4, NFR-3)
+   ============================================================ */
+
+/* Primary — accent fill */
+.btn-primary {
+  background-color: var(--accent);
+  color: #ffffff;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: none;
+  transition: opacity var(--transition), background-color var(--transition);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+/* Danger — red fill */
+.btn-danger {
+  background-color: var(--danger);
+  color: #ffffff;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: none;
+  transition: opacity var(--transition), background-color var(--transition);
+}
+
+.btn-danger:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+/* Secondary — outlined / muted */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-muted);
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: background-color var(--transition), border-color var(--transition),
+              color var(--transition);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg);
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+/* Warning — amber/yellow stop button */
+.btn-warning {
+  background-color: #f4a261;
+  color: #ffffff;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: none;
+  transition: opacity var(--transition), background-color var(--transition);
+}
+
+.btn-warning:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+/* Icon-only button — square, no padding, transparent */
+.btn-icon {
+  background-color: transparent;
+  color: var(--text-muted);
+  padding: var(--space-xs);
+  border: none;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  font-size: 1rem;
+  transition: color var(--transition), background-color var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover:not(:disabled) {
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+.btn-icon.btn-icon--danger:hover:not(:disabled) {
+  color: var(--danger);
+  background-color: rgba(230, 57, 70, 0.08);
+}
+
+/* ============================================================
+   9. ERROR / WARNING INLINE MESSAGES
+   ============================================================ */
+
+/* .error already declared in section 7 — extend here */
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.warning {
+  color: #c77b00;
+  font-size: 0.875rem;
+  margin-top: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+[data-theme="dark"] .warning {
+  color: #ffb84d;
+}
+
+/* Hidden state — JS adds/removes this class */
+.error:empty,
+.warning:empty {
+  display: none;
+}
+
+/* ============================================================
+   10. SETTINGS BAR — CONTROLS (Requirements 6.5, 6.6)
+   ============================================================ */
+
+/* Each group inside the bar (theme, name, duration) */
+.settings-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Theme toggle — pill badge style */
+#theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background-color: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;           /* pill */
+  padding: var(--space-xs) var(--space-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color var(--transition), border-color var(--transition),
+              color var(--transition);
+}
+
+#theme-toggle:hover:not(:disabled) {
+  background-color: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+/* Name / duration inputs inside settings bar — compact */
+.settings-group input[type="text"],
+.settings-group input[type="number"] {
+  width: 10rem;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.875rem;
+}
+
+.settings-group label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   11. GREETING PANEL
+   ============================================================ */
+
+#greeting-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  text-align: center;
+}
+
+/* Large clock */
+#clock-display {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--transition);
+}
+
+/* Date string (muted, smaller) */
+#date-display {
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+  transition: color var(--transition);
+}
+
+/* Greeting headline */
+#greeting-text {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  transition: color var(--transition);
+}
+
+/* Name display */
+#name-display {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+/* ============================================================
+   12. TIMER PANEL
+   ============================================================ */
+
+#timer-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: center;
+  text-align: center;
+}
+
+/* MM:SS big display */
+#timer-display {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: clamp(3rem, 12vw, 5.5rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--transition);
+}
+
+/* Flash animation when timer ends */
+@keyframes timer-flash {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+#timer-display.flash {
+  animation: timer-flash 0.5s ease 4;
+}
+
+/* Controls row */
+#timer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Start button — accent */
+#timer-start {
+  background-color: var(--accent);
+  color: #ffffff;
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  min-width: 5rem;
+}
+
+#timer-start:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+/* Stop button — warning/amber */
+#timer-stop {
+  background-color: #f4a261;
+  color: #ffffff;
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  min-width: 5rem;
+}
+
+#timer-stop:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+/* Reset button — muted / secondary */
+#timer-reset {
+  background-color: transparent;
+  color: var(--text-muted);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  min-width: 5rem;
+  transition: background-color var(--transition), border-color var(--transition),
+              color var(--transition);
+}
+
+#timer-reset:hover:not(:disabled) {
+  background-color: var(--bg);
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+/* Duration config row */
+#timer-config {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#timer-config label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+#timer-duration-input {
+  width: 5rem;
+  text-align: center;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.875rem;
+}
+
+/* ============================================================
+   13. TODO PANEL (Requirements 4.4, NFR-3)
+   ============================================================ */
+
+#todo-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Panel heading */
+#todo-panel h2 {
+  margin-bottom: var(--space-xs);
+}
+
+/* Add-task row */
+#add-task-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+#add-task-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Sort row */
+#sort-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+#sort-row label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+#sort-select {
+  font-size: 0.875rem;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* Task list */
+#task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-height: 28rem;
+  overflow-y: auto;
+  padding-right: var(--space-xs);         /* room for scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+#task-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+#task-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#task-list::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 2px;
+}
+
+/* Individual task item */
+#task-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition), border-color var(--transition),
+              box-shadow var(--transition);
+}
+
+#task-list li:hover {
+  background-color: var(--surface);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Checkbox */
+#task-list li input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  border: none;
+}
+
+/* Task text / label */
+.task-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9375rem;
+  color: var(--text);
+  word-break: break-word;
+  transition: color var(--transition), opacity var(--transition),
+              text-decoration var(--transition);
+}
+
+/* Completed state (Requirements 4.4) */
+#task-list li.completed .task-text {
+  text-decoration: line-through;
+  opacity: 0.6;
+  color: var(--text-muted);
+}
+
+/* Inline edit input */
+.task-edit-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9375rem;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* Task action buttons */
+.task-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   14. LINKS PANEL (Requirements 5.2, 5.3)
+   ============================================================ */
+
+#links-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Add-link form */
+#add-link-form {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+#add-link-form input[type="text"],
+#add-link-form input[type="url"] {
+  flex: 1;
+  min-width: 8rem;
+}
+
+/* Links grid — flex-wrap container */
+#links-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-content: flex-start;
+}
+
+/* Each link item wrapper */
+.link-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background-color: var(--accent);
+  color: #ffffff;
+  border-radius: 999px;            /* pill */
+  padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: opacity var(--transition), background-color var(--transition),
+              box-shadow var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.link-item:hover {
+  opacity: 0.9;
+  box-shadow: var(--shadow-md);
+}
+
+/* The anchor/button that opens the link */
+.link-item a,
+.link-item .link-btn {
+  color: inherit;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: none;
+}
+
+.link-item a:hover,
+.link-item .link-btn:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+/* Small delete button inside link pill */
+.link-delete {
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 50%;
+  color: #ffffff;
+  width: 1.125rem;
+  height: 1.125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background-color var(--transition);
+}
+
+.link-delete:hover {
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Empty-state hint */
+#links-grid:empty::after {
+  content: "No quick links yet. Add one above.";
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ============================================================
+   15. THEME TRANSITIONS — smooth colour changes on all elements
+   ============================================================ */
+
+#settings-bar,
+#greeting-panel,
+#timer-panel,
+#todo-panel,
+#links-panel,
+#task-list li,
+.link-item,
+input,
+select,
+textarea,
+button {
+  transition-property: background-color, border-color, color, opacity, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+
+/* ============================================================
+   16. RESPONSIVE ADJUSTMENTS — mobile additions (NFR-3)
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Settings bar — stack vertically */
+  #settings-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .settings-group {
+    width: 100%;
+  }
+
+  .settings-group input[type="text"],
+  .settings-group input[type="number"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Add-task row — stack on very small screens */
+  #add-task-row {
+    flex-direction: column;
+  }
+
+  #add-task-row input[type="text"],
+  #add-task-row button {
+    width: 100%;
+  }
+
+  /* Add-link form — stack inputs */
+  #add-link-form {
+    flex-direction: column;
+  }
+
+  #add-link-form input,
+  #add-link-form button {
+    width: 100%;
+  }
+
+  /* Timer display — tighter on phones */
+  #timer-display {
+    font-size: clamp(2.5rem, 18vw, 4rem);
+  }
+
+  /* Timer controls — ensure buttons wrap nicely */
+  #timer-controls {
+    gap: var(--space-xs);
+  }
+
+  #timer-start,
+  #timer-stop,
+  #timer-reset {
+    flex: 1 1 auto;
+    min-width: 4.5rem;
+    padding: var(--space-sm) var(--space-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Links grid — full-width pills on tiny screens */
+  #links-grid {
+    flex-direction: column;
+  }
+
+  .link-item {
+    width: 100%;
+    border-radius: var(--radius-md);
+    justify-content: space-between;
+  }
+}
+
+/* ============================================================
+   17. TWO-COLUMN WRAPPERS
+   ============================================================ */
+
+.left-col,
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.left-col {
+  flex: 1 1 300px;
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.right-col {
+  flex: 2 1 400px;
+  min-width: 320px;
+}
+
+@media (max-width: 768px) {
+  .left-col,
+  .right-col {
+    flex: 1 1 100%;
+    max-width: none;
+    min-width: 0;
+  }
+}
+
+/* Empty state for task list */
+.task-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: var(--space-md);
+  font-size: 0.9375rem;
+}
